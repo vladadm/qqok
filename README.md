@@ -10,4 +10,4 @@ Command-Line Interface ( python3.x )
 
 ### License
 
-Copyright © 2017, [Vladislav E.](https://github.com/vladadm).
+Copyright © 2020, [Vladislav E.](https://github.com/vladadm).

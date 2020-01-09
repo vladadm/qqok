@@ -1,0 +1,24 @@
+[
+    {
+        "fullname": "",
+        "created_at": "2019-02-11T11:57:55.217Z",
+        "updated_at": "2019-02-11T21:06:58.506Z",
+        "id": 4,
+        "name": "dev.ivi.ru",
+        "dns_id": null,
+        "dns": null
+    },
+    {
+        "fullname": "",
+        "created_at": "2018-06-07T16:56:17.000Z",
+        "updated_at": "2018-07-16T15:40:59.050Z",
+        "id": 1,
+        "name": "staging.ivi.ru",
+        "dns_id": 2,
+        "dns": {
+            "name": "foreman1.staging.ivi.ru",
+            "id": 2,
+            "url": "https://foreman1.staging.ivi.ru:8443"
+        }
+    }
+]

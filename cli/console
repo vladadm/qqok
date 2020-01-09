@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+import colorama
+import sys
+
+#colorama.init()
+
+import curses
+
+
+def cli(stdscr):
+    curses.start_color()
+    stdscr = curses.initscr()
+    stdscr.addstr(0, 0, "< core-db-shard22-dbm01a.prod.amosrv.ru 10.13.0.200 >\n", curses.A_REVERSE)
+    stdscr.refresh()
+    curses.endwin()
+
+def main(stdscr):
+    curses.use_default_colors()
+    for i in range(0,7):
+        stdscr.addstr("Hello", curses.color_pair(i))
+    stdscr.getch()
+
+curses.wrapper(main)
+
+
+
+
+def move (y, x):
+  print('\x1b[2J')
+  print("\033[%d;%dH" % (y, x))
+
+
+def progressBar(value, endvalue, bar_length=20):
+    percent = float(value) / endvalue
+    arrow = '-' * int(round(percent * bar_length) - 1) + '>'
+    spaces = ' ' * (bar_length - len(arrow))
+    sys.stdout.write("\rPercent: [{0}] {1}%".format(arrow + spaces, int(round(percent * 100))))
+    sys.stdout.flush()
+
+
+ra

@@ -1,0 +1,18 @@
+foreman:
+  environment: ''
+  user: ''
+  password: ''
+
+zabbix:
+  user: ''
+  password: ''
+
+api_key:
+  client_key: ''
+  secret_client_key: ''
+
+gitlab:
+  api_key: ''
+
+artifacroty:
+  api_key: ''

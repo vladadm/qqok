@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 *.tar
-*.ymal
+*.yaml
 __pycache__/
 *.py[cod]
 *$py.class

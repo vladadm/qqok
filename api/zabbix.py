@@ -1,16 +1,29 @@
 import requests
 import json
+import yaml
+from qqok.api.forman import req
 
 
 URL = 'https://zabbix.vcp.ivi.ru/api_jsonrpc.php'
 HEADERS = {"Content-Type": "application/json-rpc"}
-#DATA_TMPL =
+
 
 class Auth:
-    def __init__(self, user_name, user_passwd):
-        self.user = user_name
-        self.pw = user_passwd
+    def __init__(self):
+        self.user = self.load().get("user")
+        self.pw = self.load().get("password")
         self.get_key()
+
+    @staticmethod
+    def load():
+        config_file = 'config.yaml'
+        config_path = "/".join(__file__.split("/")[:-2]) + "/"
+        try:
+            with open(config_path + config_file, 'r') as file:
+                return yaml.safe_load(file.read()).get("zabbix")
+        except Exception as exc:
+            print("Exc in read config file", exc)
+            return
 
     def get_key(self):
         data = {
@@ -32,12 +45,13 @@ class Auth:
             print('Except: ', exx)
             return
 
-Aa = Auth('veldyshev', 'zoldivi1&')
+
+cred = Auth()
 
 
-class Api_zb:
+class API(object):
     def __init__(self):
-        self.key = Aa.api_key
+        self.key = cred.api_key
         self.dc = ["dtln", "linx", "m9"]
 
     def post(self, data):
@@ -54,13 +68,13 @@ class Api_zb:
             return
 
     def host_groups(self, group_id="", limit=""):
-        '''
+        """
         Возвращает группы хостов
         Может принимать параметры
         :param group_id: идентификатор группы (int)
         :param limit: лимит на выборку (int)
         :return: возвращает список словарей [ {}, {} ]
-        '''
+        """
         data = {
             "params": {
             },
@@ -93,14 +107,11 @@ class Api_zb:
             "auth": self.key,
             "id": "1"
         }
-        #group = self.host_groups(group_id)
-        #print(group)
-        if not group_id:
-            #print("Host group not found")
-            group_name = "all"
-            #return
-        #if len(group_id) > 1:
 
+        if not group_id:
+            # print("Host group not found")
+            group_name = "unsorted"
+            # return
         else:
             group = self.host_groups(group_id)
             data["params"].update({"groupids": group_id})
@@ -199,7 +210,6 @@ class Api_zb:
         }
         '''
         data = {
-            #"params": {},
             "params": {
                 "output": ["host"]
             },
@@ -214,13 +224,25 @@ class Api_zb:
             post = requests.post(URL, headers=HEADERS, data=json.dumps(data)).json()
             post_ids = [ x.get("hostid") for x in post.get("result")]
             post_iface = self.interfaces_for_host(post_ids)
-            ss = {}
+            # ss = {}
+            ss = []
             for host in post.get("result"):
-                ss.update({host.get("hostid"): {"name": host.get("host")}})
-            for iface in post_iface:
-                ss[iface.get("hostid")].update({"ip": iface.get("ip", "empty"), "fqdn": iface.get("dns", "empty")})
+                ss.append({"id": host.get("hostid"), "host": host.get("host")})
 
-            return ss
+            for host in ss:
+                host_id = host.get("id")
+                for iface in post_iface:
+                    iface_id = iface.get("hostid")
+
+                    if host_id == iface_id and iface['type'] == "1":
+                        host.update({"ip": iface.get("ip", "empty"), "fqdn": iface.get("dns", "empty")})
+            with_fqdn = [x for x in ss if x.get("fqdn")]
+                    #ss[iface.get("hostid")].update({"ip": iface.get("ip", "empty"), "fqdn": iface.get("dns", "empty")})
+            #for iface in post_iface:
+             #   ss[iface.get("hostid")].update({"ip": iface.get("ip", "empty"), "fqdn": iface.get("dns", "empty")})
+            #print(ss)
+            with_fqdn = [{"id": x.get("id"), "host": x.get("fqdn"), "ip": x.get("fqdn")} for x in ss if x.get("fqdn")]
+            return with_fqdn
             #return post.get("result")
         except Exception as exx:
             print("Except: ", exx)
@@ -232,73 +254,76 @@ class Api_zb:
         #     hosts.append({"id": host.get('hostid'), "name": host.get('host')})
         # return hosts
 
-    def fabric(self):
-        hostgroup = "dev"
-        # Получаем id всех групп
-        ids_for_all_hostgroups = [x.get("groupid") for x in self.host_groups()]
-        full = []
-        # Закидываем все словари групп в единый список
-        for group in ids_for_all_hostgroups:
-            full.append(api.host_for_groups(group))
-        # ====================
-        # Обновляем ключ hosts для каждой группы
-        for group in full:
-            tem = {}
-            for host in group.get("hosts"):
-                host_id = host.get("hostid")
-                host_name = host.get("host")
-                status = host.get("status")
-                host.clear()
-                tem.update({host_id: {"name": host_name, "status": status}})
-            group.update({"hosts": tem })
-            hosts_id = [int(*x.keys()) for x in group.get("hosts")]
-        # +++++++++++++++
-        for yy in full1:
-            ifa = api.interfaces_for_host(list((yy["hosts"].keys())))
-            for fa in ifa:
-                yy["hosts"][fa.get("hostid")].update({"ip": fa.get("ip"), "dns": fa.get("dns")})
 
-        hosts = []
-        for items in full:
-            for host in items["hosts"]:
-                if "linx" in items["hosts"][host]["dns"]:
-                    dc = "linx"
-                if "dtln" in items["hosts"][host]["dns"]:
-                    dc = "dtln"
-                if "m9" in items["hosts"][host]["dns"]:
-                    dc = "m9"
-                # else:
-                #    dc = None
-                hosts.append(
-                    {"group_id": items["group_id"],
-                     "group_name": items["group_name"],
-                     "host_id": host,
-                     "host_name": items["hosts"][host]["name"],
-                     "ip": items["hosts"][host]["ip"],
-                     "dns": items["hosts"][host]["dns"],
-                     "datacenter": dc,
-                     "status": items["hosts"][host]["status"],
-                     }
-                )
-        #hosts_id = [int(*x.keys()) for x in i.get("hosts")]
-        #ifaces_for_hosts = api.interfaces_for_host(host_id)
-        #[{v: k for k, v in x.items()} for x in ff]
-        # ==========
+zabbix_api = API()
 
-            # hosts.append({"host_id": "", "host_name":  group_id": items[], })
-        # hosts.append(hh)
-
-        # ============
-        dev = api.host_for_groups(195)
-        dev_ids = [x.get("hostid") for x in dev.get('hosts')]
-        dev_h = dev.get("hosts")
-        ss = {}
-        for host in dev_h:
-            ss.update({host.get("hostid"): {"name": host.get("host")}})
-        ids = [x for x in ss]
-        dev_if = api.interfaces_for_host([x for x in ss])
-        for iface in dev_if:
-            ss[iface.get("hostid")].update({"ip": iface.get("ip", "empty"), "fqdn": iface.get("dns", "empty")})
+    # def fabric(self):
+    #     hostgroup = "dev"
+    #     # Получаем id всех групп
+    #     ids_for_all_hostgroups = [x.get("groupid") for x in self.host_groups()]
+    #     full = []
+    #     # Закидываем все словари групп в единый список
+    #     for group in ids_for_all_hostgroups:
+    #         full.append(api.host_for_groups(group))
+    #     # ====================
+    #     # Обновляем ключ hosts для каждой группы
+    #     for group in full:
+    #         tem = {}
+    #         for host in group.get("hosts"):
+    #             host_id = host.get("hostid")
+    #             host_name = host.get("host")
+    #             status = host.get("status")
+    #             host.clear()
+    #             tem.update({host_id: {"name": host_name, "status": status}})
+    #         group.update({"hosts": tem })
+    #         hosts_id = [int(*x.keys()) for x in group.get("hosts")]
+    #     # +++++++++++++++
+    #     for yy in full1:
+    #         ifa = api.interfaces_for_host(list((yy["hosts"].keys())))
+    #         for fa in ifa:
+    #             yy["hosts"][fa.get("hostid")].update({"ip": fa.get("ip"), "dns": fa.get("dns")})
+    #
+    #     hosts = []
+    #     for items in full:
+    #         for host in items["hosts"]:
+    #             if "linx" in items["hosts"][host]["dns"]:
+    #                 dc = "linx"
+    #             if "dtln" in items["hosts"][host]["dns"]:
+    #                 dc = "dtln"
+    #             if "m9" in items["hosts"][host]["dns"]:
+    #                 dc = "m9"
+    #             # else:
+    #             #    dc = None
+    #             hosts.append(
+    #                 {"group_id": items["group_id"],
+    #                  "group_name": items["group_name"],
+    #                  "host_id": host,
+    #                  "host_name": items["hosts"][host]["name"],
+    #                  "ip": items["hosts"][host]["ip"],
+    #                  "dns": items["hosts"][host]["dns"],
+    #                  "datacenter": dc,
+    #                  "status": items["hosts"][host]["status"],
+    #                  }
+    #             )
+    #     #hosts_id = [int(*x.keys()) for x in i.get("hosts")]
+    #     #ifaces_for_hosts = api.interfaces_for_host(host_id)
+    #     #[{v: k for k, v in x.items()} for x in ff]
+    #     # ==========
+    #
+    #         # hosts.append({"host_id": "", "host_name":  group_id": items[], })
+    #     # hosts.append(hh)
+    #
+    #     # ============
+    #     dev = api.host_for_groups(195)
+    #     dev_ids = [x.get("hostid") for x in dev.get('hosts')]
+    #     dev_h = dev.get("hosts")
+    #     ss = {}
+    #     for host in dev_h:
+    #         ss.update({host.get("hostid"): {"name": host.get("host")}})
+    #     ids = [x for x in ss]
+    #     dev_if = api.interfaces_for_host([x for x in ss])
+    #     for iface in dev_if:
+    #         ss[iface.get("hostid")].update({"ip": iface.get("ip", "empty"), "fqdn": iface.get("dns", "empty")})
 
 
 
@@ -307,7 +332,7 @@ class Api_zb:
 #     headers = {"Content-Type": "application/json-rpc"}
 #     return requests.post(url, headers = headers, data = json.dumps(data))
 
-if __name__ == "__main__":
-    #ata = {"jsonrpc": "2.0", "method": "apiinfo.version", "id": 1, "auth": None, "params": {}}
-    #rint(api_test(data).json())
+# if __name__ == "__main__":
+    # ata = {"jsonrpc": "2.0", "method": "apiinfo.version", "id": 1, "auth": None, "params": {}}
+    # rint(api_test(data).json())
 

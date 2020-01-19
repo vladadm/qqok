@@ -55,8 +55,11 @@ class Cli(cmd2.Cmd):
 
 ########## Complition ####### Также нужно вынести в cache
 
-    def update_exec_completions(self, *args):
+    def update_exec_completions(self, *args, item=""):
         hosts = [x['host'] for x in cache.hosts]
+        if item == "hosts":
+            setattr(self, 'exec_completions', hosts)
+            return
         #groups = ['%%%s' % x.get("name") for x in cache.groups]
         groups = []
         for group in cache.groups:
@@ -142,10 +145,10 @@ class Cli(cmd2.Cmd):
             buf.append(b)
         return self.find_dc(''.join(reversed(buf)))
 
-
     complete_p_exec = complete_exec
     complete_ssh = complete_exec
-    complete_ssh1 = complete_exec_right
+    # complete_ssh1 = complete_exec_right
+    complete_ssh1 = complete_exec
     complete_puppet_agent_test = complete_exec
     complete_p_puppet_agent_test = complete_exec
     complete_delete = complete_exec

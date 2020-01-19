@@ -212,7 +212,7 @@ def ssh1(*args):
         obj_items = name.split('*')
         print('Obj_Items:', obj_items)
         right_item = obj_items[0]
-        left_items = [x.get("host") for x in cache.hosts if x.startswith(right_item)]
+        #left_items = [x.get("host") for x in cache.hosts if x.startswith(right_item)]
         left_item = obj_items[1]
         print("RItem", right_item)
         line = 'LItem ' + left_item

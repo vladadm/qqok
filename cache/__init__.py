@@ -5,6 +5,7 @@ import os
 import json
 #from foreman import
 from qqok.api.forman import get_item as get_forman_items
+from qqok.api.zabbix import zabbix_api
 from collections import ChainMap
 from multiprocessing.pool import ThreadPool
 from time import time
@@ -67,15 +68,18 @@ class Cache:
         except:
             print('Fail file update. {}')
     #
-    def update_items(self, *args):
+    def update_items(self, *args, data_source=""):
         """
         Получает из форемана словари с объектами
         парсит и складывает в кэш.
         """
+        arg = str(*args)
+        if arg == "zbx":
+            setattr(self, 'hosts', [x for x in zabbix_api.hosts()])
+            return
         # self.hosts= []
         # self.groups = []
         start = time()
-        arg = str(*args)
         item = {
             "all": "all_items",
             "groups": "hostgroups",

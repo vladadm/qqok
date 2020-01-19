@@ -68,60 +68,77 @@ class Cache:
             print('Fail file update. {}')
     #
     def update_items(self, *args):
+        """
+        Получает из форемана словари с объектами
+        парсит и складывает в кэш.
+        """
         # self.hosts= []
         # self.groups = []
         start = time()
-        print(args)
-
-        #result = executor('all')
-        #result = executor('hostgroups')
+        arg = str(*args)
+        item = {
+            "all": "all_items",
+            "groups": "hostgroups",
+            "hosts": "hosts",
+                }.get(arg, None)
+        print("Arg:", arg)
+        print(item)
         try:
-            result = get_forman_items("all_items")
+            if not arg:
+                raise Exception("Incorrect item {}".format(arg))
+            print("Arg:", arg)
+            result = get_forman_items(item)
         except Exception as exc:
             print("Failed request items: {}".format(str(exc)))
             return
 
-        setattr(self, 'groups', [])
+        if arg == "all":
 
-        #
-        # groups = form.get_item("hostgroups")
-        for group in result[0]:
-            self.groups.append(
-                {"id": group.get("id"),
-                 "name": group.get('name'),
-                 "env": group.get("environment_name"),
-                 "title": group.get("title"),
-                 "domain_name": group.get("domain_name"),
-                 "parent": group.get("parent_name")}
-            )
+            setattr(self, 'groups', [])
+            for group in result[0]:
+                self.groups.append(
+                    {"id": group.get("id"),
+                     "name": group.get('name'),
+                     "env": group.get("environment_name"),
+                     "title": group.get("title"),
+                     "domain_name": group.get("domain_name"),
+                     "parent": group.get("parent_name")}
+                )
 
-        setattr(self, 'hosts', [])
-        #hosts = form.get_item("hosts")
-        #     host = {
-        #         'host': host.get('name'),
-        #         'env': str(*[x.get(host.get('environment_uuid')) for x in self.env if x.get(host.get('environment_uuid'))]), #(self.env.get(name.get("environment_uuid")),
-        #         'group': str(*[x.get(host.get("group_uuid")) for x in self.grp if x.get(host.get("group_uuid"))]),
-        #         'dc': str(*[x.get(host.get("datacenter_uuid")) for x in self.dc if x.get(host.get("datacenter_uuid"))]),
-        #         }
+            setattr(self, 'hosts', [])
+            for host in result[1]:
+                self.hosts.append(
+                    {
+                        "host": host.get("name"),
+                        "ip": host.get("ip"),
+                        "group": host.get("hostgroup_name"),
+                        "group_title": host.get("hostgroup_title"),
+                        "model_name": host.get("model_name"),
+                        "location_name": host.get("location_name"),
+                        "compute_resource_name": host.get("compute_resource_name"),
+                        "id": host.get("id"),
+                        "uuid": host.get("uuid"),
+                        "domain_name": host.get("domain_name"),
+                        "last_report": host.get("last_report"),
+                     }
+                )
 
-        for host in result[1]:
-            self.hosts.append(
-                {
-                    "host": host.get("name"),
-                    "ip": host.get("ip"),
-                    "group": host.get("hostgroup_name"),
-                    "group_title": host.get("hostgroup_title"),
-                    "model_name": host.get("model_name"),
-                    "location_name": host.get("location_name"),
-                    "compute_resource_name": host.get("compute_resource_name"),
-                    "id": host.get("id"),
-                    "uuid": host.get("uuid"),
-                    "domain_name": host.get("domain_name"),
-                    "last_report": host.get("last_report"),
-                 }
-            )
+            cache_items = {'groups': self.groups, 'hosts': self.hosts, }
 
-        cache_items = {'groups': self.groups, 'hosts': self.hosts, }
+        if arg == "groups":
+
+            setattr(self, 'groups', [])
+            for group in result[0]:
+                self.groups.append(
+                    {"id": group.get("id"),
+                     "name": group.get('name'),
+                     "env": group.get("environment_name"),
+                     "title": group.get("title"),
+                     "domain_name": group.get("domain_name"),
+                     "parent": group.get("parent_name")}
+                )
+            cache_items = {'groups': self.groups, 'hosts': self.hosts, }
+
         self.write_cache(cache_items)
 
         # for group in result[3]:

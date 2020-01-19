@@ -79,6 +79,46 @@ class Cli(cmd2.Cmd):
             buf.append(b)
         return self.find_similar_host_or_group(''.join(reversed(buf)))
 
+    def complete_exec_right(self, text, line, begidx, endidx):
+        """
+        Функуия разбиениея строки на блоки и определение какой блок коплитить по табу
+        example: ssh1 mapi * ivi.ru
+        """
+        #print("\n", line)
+        #line = reversed(line[begidx:endidx])
+        line = line[begidx:endidx]
+        #print("\n", line)
+        buf = []
+        for b in line:
+            if b == ' ':
+                break
+            buf.append(b)
+        #print(buf)
+        receive = ''.join(buf)
+        print(receive)
+        if '*' in receive:
+            obj_items = receive.split('*')
+            print('Obj_Items:', obj_items)
+            right_item = obj_items[0]
+            left_items = [x.get("host") for x in cache.hosts if x.startswith(right_item)]
+            print(left_items)
+            left_item = obj_items[1]
+            len_left = len(left_item)+1
+            return left_items
+
+            #print("RItem", right_item)
+            line = 'LItem ' + left_item
+            #print("Line", line)
+            #return self.find_items_for_line()
+        return self.find_similar_host_or_group(''.join(buf))
+
+    def find_items_for_line(self, item):
+        buf = []
+        for item in self.get_exec_completions():
+            if item.startswith(item):
+                buf.append(item)
+        return buf
+
     def find_similar_host_or_group(self, name):
         buf = []
         for item in self.get_exec_completions():
@@ -105,6 +145,7 @@ class Cli(cmd2.Cmd):
 
     complete_p_exec = complete_exec
     complete_ssh = complete_exec
+    complete_ssh1 = complete_exec_right
     complete_puppet_agent_test = complete_exec
     complete_p_puppet_agent_test = complete_exec
     complete_delete = complete_exec
@@ -126,14 +167,24 @@ class Cli(cmd2.Cmd):
     def do_grp(self, *args):
         print(cache.groups)
 
-    def do_reload(self, *args): # Должно обновлять полностью кэш
-        #print(id(cache))          # метод
+    def do_reload(self, *args):
+        """
+        # Должно обновлять полностью кэш
+        # метод
+        """
+        print(*args)
+        arg = str(*args)
         try:
-            cache.update_items('all_items')
-            self.update_exec_completions()
+            if not arg:
+                cache.update_items('all')
+            else:
+                cache.update_items(arg)
             #print(f'Cache size: {sys.getsizeof(cache)}b')
         except Exception as exc:
-            print("Error update {}", str(exc))
+            print("ERROR: {} {}".format(__name__, str(exc)))
+            return
+            #print("Error in {}:".format(__name__), str(exc))
+        self.update_exec_completions()
     do_update = update_exec_completions
 
     def do_save_cache(self, *args):

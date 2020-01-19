@@ -8,6 +8,11 @@ Command-Line Interface ( python3.x )
 
 * [github/vladadm](https://github.com/vladadm)
 
-### License
+ssh-add -k ~/.ssh/id_rsa
 
-Copyright © 2020, [Vladislav E.](https://github.com/vladadm).
+config
+Host *
+  ForwardAgent yes
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
+  LogLevel ERROR

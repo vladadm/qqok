@@ -1,0 +1,18 @@
+foreman:
+  environment: 'stage'
+  user: 'jenkins'
+  password: 'ChooQu5D'
+
+zabbix:
+  user: 'veldyshev'
+  password: 'zoldivi1&'
+
+api_key:
+  client_key: 'cJBLCjYZNeNsgZrD2U9it59tkpwYxQey'
+  secret_client_key: 'Yp4XBvTuKHx8T8AQtZoh4GpMEw3FTCxn'
+
+gitlab:
+  api_key: 'k5de3s9DdQ_LBukURWg9'
+
+artifacroty:
+  api_key: 'AKCp5e3AK9PcjBep82sEkBgZ532PSNuD44Cgw5ExDP2HN54TUVVHRxDZeBBtnVpmerbVMpyaA'

@@ -184,14 +184,16 @@ def url_maker(url, per_page, total_pages):
         return
     return urls
 
+
 def multi_get(urls):
-    pool = ThreadPool(len(urls))
+    url_count = len(urls)
+    pool = ThreadPool(url_count)
     print(
         #"[ {} {} ] POOL: {}\n{}".format(
-        "[ {} {} ] POOL: {}".format(
+        "[ {} {} ] POOL x{}: {}".format(
             strftime('%H:%m:%S'),
             strftime('%s')[0:3],
-            #len(urls),
+            url_count,
             urls,
         )
     )

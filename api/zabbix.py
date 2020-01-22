@@ -38,7 +38,8 @@ class Auth:
         try:
             post = requests.post(URL, headers=HEADERS, data=json.dumps(data)).json()
             if post.get("error"):
-                print(post.get("error"))
+                # print(post.get("error"))
+                raise ConnectionError("[{}] {}".format(URL, post["error"]["data"]))
                 return
             setattr(self, "api_key", post.get('result'))
         except Exception as exx:

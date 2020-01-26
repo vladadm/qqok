@@ -178,6 +178,10 @@ class Cli(cmd2.Cmd):
         print(*args)
         arg = str(*args)
         try:
+            if arg == "zbx":
+                cache.update_zabbix_items()
+                self.update_exec_completions()
+                return
             if not arg:
                 cache.update_items('all')
             else:

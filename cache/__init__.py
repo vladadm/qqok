@@ -75,7 +75,7 @@ class Cache:
         """
         try:
             timer_start = time()
-            setattr(self, 'zabbix_hosts', [x for x in zabbix_api.hosts()])
+            setattr(self, 'hosts', [x for x in zabbix_api.hosts()])
             print(
                 "[ {} {} ] ZABBIX: {} \n".format(strftime('%H:%m:%S'), strftime('%s')[0:3], str(time() - timer_start)[0:4])
             )

@@ -70,7 +70,7 @@ class Cache:
     #
     def update_zabbix_items(self, *args, data_source=""):
         """
-        Получает из форемана словари с объектами
+        Получает из zabbix словари с объектами
         парсит и складывает в кэш.
         """
         try:

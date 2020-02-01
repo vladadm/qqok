@@ -640,8 +640,14 @@ class Cli(cmd2.Cmd):
     #     for i in portal.search(name):
     #         print(i)
     #     #result = portal.search(*args)
-
-        #rt.create_lxd_container()
+    def do_search(self, *args):
+        arg = str(*args)
+        if '@' in str(*args):
+            name, dc = str(*args).split("@")
+            print(dc)
+        for host in cache.hosts:
+            if arg in host.get("host"):
+                print(host.get("host"))
 #####################################
     def do_dom(self, *args):
         hyper = rt.hyper_for_host(*args)
@@ -651,16 +657,3 @@ class Cli(cmd2.Cmd):
 
     complete_dom = complete_exec
 
-
-    # def do_describe_cssh(self, stmt):
-    #     """Show info about hosts, hostgroups"""
-    #     spl = stmt.args
-    #     if not spl :
-    #         print("usage: %s host [ %hostgroup ...]" % stmt.command)
-    #         return
-    #     hosts = self.expand_hosts(spl)
-    #     for item in self.get_hosts():
-    #         if item['host'] in hosts:
-    #             print(item['host'], end=' ')
-    #     print()
-    # complete_describe_cssh = complete_exec

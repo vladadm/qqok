@@ -23,7 +23,14 @@ gnureadline.parse_and_bind('tab:complete')
 class Cli(cmd2.Cmd):
     def __init__(self):
         shortcuts = dict(self.DEFAULT_SHORTCUTS)
-        shortcuts.update( {'r': 'reload', 'u': 'update', 'gg': 'groups', 'q': 'quit', 'fe' : 'free_ip'} )
+        shortcuts.update({
+            'r': 'reload',
+            'u': 'update',
+            'gg': 'groups',
+            'q': 'quit',
+            'fe': 'free_ip',
+            '.': 'ssh1'
+        })
         super().__init__(shortcuts=shortcuts)
         #super().__init__(shortcuts=shortcuts, allow_cli_args = False, allow_redirection = False )
         #self.allow_redirection = False

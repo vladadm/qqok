@@ -1,18 +1,20 @@
 # QQok ( qqok )
-Command-Line Interface ( python3.x )
+Interactive Command-Line Interface for execution commands on multiple hosts in parallel or single mode
 
+- Integration with popular CMS and Monitoring systems
+- Auto-complete commands and hostgroups and hostnames
+- Parralle or single execution mode
+- Grouping hosts per groups
+- Can execute commands both on the list of hosts and on the group
+- Сan exclude groups or hosts when executing commands
 
-### Author
-
-**Vladislav E.**
 
 * [github/vladadm](https://github.com/vladadm)
 
-ssh-add -k ~/.ssh/id_rsa
+#### Instructions
 
-config
-Host *
-  ForwardAgent yes
-  StrictHostKeyChecking no
-  UserKnownHostsFile=/dev/null
-  LogLevel ERROR
+### Install
+
+### Configure
+
+### Use
